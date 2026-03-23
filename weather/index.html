@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #current-weather, #forecast { margin: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Weather Dashboard</h1>
+    <input type="text" id="city-input" placeholder="Enter city name">
+    <button id="search-btn">Search</button>
+
+    <div id="current-weather">
+        <h2>Current Weather</h2>
+        <div id="current-data"></div>
+    </div>
+
+    <div id="forecast">
+        <h2>5-Day Forecast</h2>
+        <div id="forecast-data"></div>
+    </div>
+
+    <script>
+        const apiKey = 'YOUR_API_KEY'; // Replace with your OpenWeatherMap API key
+
+        document.getElementById('search-btn').addEventListener('click', function() {
+            const city = document.getElementById('city-input').value;
+            getWeather(city);
+        });
+
+        async function getWeather(city) {
+            const currentWeatherResponse = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`);
+            const weatherData = await currentWeatherResponse.json();
+            displayCurrentWeather(weatherData);
+
+            const forecastResponse = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`);
+            const forecastData = await forecastResponse.json();
+            displayForecast(forecastData);
+        }
+
+        function displayCurrentWeather(data) {
+            const currentDataDiv = document.getElementById('current-data');
+            currentDataDiv.innerHTML = `<p>${data.name}: ${data.main.temp} °C, ${data.weather[0].description}</p>`;
+        }
+
+        function displayForecast(data) {
+            const forecastDataDiv = document.getElementById('forecast-data');
+            forecastDataDiv.innerHTML = '';
+            data.list.forEach(item => {
+                if (item.dt_txt.includes("12:00:00")) {
+                    forecastDataDiv.innerHTML += `<p>${new Date(item.dt * 1000).toLocaleDateString()}: ${item.main.temp} °C, ${item.weather[0].description}</p>`;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
